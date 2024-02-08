@@ -1,0 +1,9 @@
+[submodule "packages/docs"]
+	path = packages/docs
+	url = https://github.com/lythar/docs
+[submodule "packages/lythar-frontend"]
+	path = packages/lythar-frontend
+	url = https://github.com/lythar/lythar-frontend
+[submodule "packages/lythar-backend"]
+	path = packages/lythar-backend
+	url = https://github.com/lythar/lythar-backend

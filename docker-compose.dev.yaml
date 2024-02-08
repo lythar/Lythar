@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  frontend:
+    container_name: lythar-frontend
+
+    build:
+      context: ./packages/lythar-frontend
+      dockerfile: dev.Dockerfile
+
+    environment:
+      ENV_VARIABLE: ${ENV_VARIABLE}
+      NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
+
+    env_file:
+      - ./packages/lythar-frontend/.env
+
+    networks:
+      - my_network
+
+    volumes:
+      - ./packages/lythar-frontend/src:/app/src
+      - ./packages/lythar-frontend/public:/app/public
+
+    restart: always
+    ports:
+      - "3000:3000"
+
+  backend:
+    container_name: lythar-backend
+
+    build:
+      context: ./packages/lythar-backend
+      dockerfile: LytharBackend/Dockerfile
+
+    networks:
+      - my_network
+
+    ports:
+      - "8080:8080"
+  docs:
+    container_name: lythar-vitepress
+
+    build:
+      context: ./packages/docs
+      dockerfile: dev.Dockerfile
+
+    environment:
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
+
+    volumes:
+      - ./packages/docs/docs:/app/docs
+
+    networks:
+      - my_network
+
+    restart: always
+    ports:
+      - "3001:3001"
+
+
+
+networks:
+  my_network:
+    external: true

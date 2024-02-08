@@ -1,0 +1,1 @@
+Start-Process "docker" -ArgumentList "compose", "-f", "..\docker-compose.dev.yaml", "up" -NoNewWindow

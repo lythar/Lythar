@@ -1,2 +1,2 @@
 # Lythar
-docker compose -f "docker-compose.yaml" up -d --build
+Use /sh/ powershell scripts to run docker

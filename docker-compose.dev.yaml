@@ -35,6 +35,7 @@ services:
       context: ./packages/lythar-backend
       dockerfile: LytharBackend/Dockerfile
 
+    restart: always
     networks:
       - my_network
 

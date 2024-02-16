@@ -1,1 +1,0 @@
-Start-Process "docker" -ArgumentList "compose", "-f", "..\docker-compose.dev.yaml", "build"

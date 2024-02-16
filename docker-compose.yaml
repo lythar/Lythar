@@ -1,0 +1,78 @@
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  jwt_private:
+    file: ./secrets/jwt_private.pem
+  jwt_public:
+    file: ./secrets/jwt_public.pem
+    
+networks:
+  internal:
+    ipam:
+      config:
+        - subnet: 172.22.0.0/24
+  bridge:
+    driver: bridge
+
+services:
+  api:
+    image: api
+    
+    build:
+      context: ${BACKEND_PATH}
+      dockerfile: LytharBackend/Dockerfile
+      
+    environment:
+      - Jwt__PrivateKey=/run/secrets/jwt_private
+      - Jwt__PublicKey=/run/secrets/jwt_public
+      - ASPNETCORE_HTTP_PORTS=5505
+      
+    secrets:
+      - db_password
+      - jwt_private
+      - jwt_public
+      
+    restart: always
+    
+    networks:
+      internal:
+        ipv4_address: 172.22.0.6
+        
+  frontend:
+    container_name: frontend
+
+    build:
+      context: ${FRONTEND_PATH}
+      dockerfile: prod.Dockerfile
+
+    environment:
+      ENV_VARIABLE: ${FRONTEND_PATH}
+      NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
+      NEXT_PUBLIC_API_URL: /
+      JWT_PUBLIC_KEY: /run/secrets/jwt_public
+    
+    secrets:
+      - jwt_public
+
+    networks:
+      internal:
+        ipv4_address: 172.22.0.7
+
+    restart: always
+      
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx:/etc/nginx/
+      - ./nginx/logs:/var/log/nginx/
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - internal
+      - bridge
+      

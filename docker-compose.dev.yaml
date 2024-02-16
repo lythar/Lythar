@@ -1,28 +1,29 @@
 version: '3'
 
+# TO-DO: Replace the networks with secure contained networks when we get nginx working
+
 services:
   frontend:
     container_name: lythar-frontend
 
     build:
-      context: ./packages/lythar-frontend
+      context: ${FRONTEND_PATH}
       dockerfile: dev.Dockerfile
 
     environment:
-      ENV_VARIABLE: ${ENV_VARIABLE}
+      ENV_VARIABLE: ${FRONTEND_PATH}
       NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
       CHOKIDAR_USEPOLLING: true
       WATCHPACK_POLLING: true
 
     env_file:
-      - ./packages/lythar-frontend/.env
+      - ./.env
 
-    networks:
-      - my_network
+    network_mode: bridge
 
     volumes:
-      - ./packages/lythar-frontend/src:/app/src
-      - ./packages/lythar-frontend/public:/app/public
+      - ${FRONTEND_PATH}/src:/app/src
+      - ${FRONTEND_PATH}public:/app/public
 
     restart: always
     ports:
@@ -32,12 +33,11 @@ services:
     container_name: lythar-backend
 
     build:
-      context: ./packages/lythar-backend
+      context: ${BACKEND_PATH}
       dockerfile: LytharBackend/Dockerfile
 
     restart: always
-    networks:
-      - my_network
+    network_mode: bridge
 
     ports:
       - "8080:8080"
@@ -45,7 +45,7 @@ services:
     container_name: lythar-vitepress
 
     build:
-      context: ./packages/docs
+      context: ${DOCS_PATH}
       dockerfile: dev.Dockerfile
 
     environment:
@@ -55,15 +55,8 @@ services:
     volumes:
       - ./packages/docs/docs:/app/docs
 
-    networks:
-      - my_network
+    network_mode: bridge
 
     restart: always
     ports:
       - "3001:3001"
-
-
-
-networks:
-  my_network:
-    external: true

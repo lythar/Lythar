@@ -5,7 +5,7 @@ secrets:
     file: ./secrets/jwt_private.pem
   jwt_public:
     file: ./secrets/jwt_public.pem
-    
+
 networks:
   internal:
     ipam:
@@ -17,27 +17,33 @@ networks:
 services:
   api:
     image: api
-    
+
     build:
       context: ${BACKEND_PATH}
       dockerfile: LytharBackend/Dockerfile
-      
+
     environment:
-      - Jwt__PrivateKey=/run/secrets/jwt_private
-      - Jwt__PublicKey=/run/secrets/jwt_public
-      - ASPNETCORE_HTTP_PORTS=5505
-      
+      Jwt__PrivateKey: /run/secrets/jwt_private
+      Jwt__PublicKey: /run/secrets/jwt_public
+      ASPNETCORE_HTTP_PORTS: 5505
+      Ldap__Host: 172.22.0.8
+
     secrets:
       - db_password
       - jwt_private
       - jwt_public
-      
+
     restart: always
-    
+
+    depends_on:
+      - db
+      - ldap
+
     networks:
       internal:
         ipv4_address: 172.22.0.6
-        
+      bridge:
+
   frontend:
     container_name: frontend
 
@@ -52,16 +58,50 @@ services:
       WATCHPACK_POLLING: true
       NEXT_PUBLIC_API_URL: /
       JWT_PUBLIC_KEY: /run/secrets/jwt_public
-    
+
+    depends_on:
+      - api
+
     secrets:
       - jwt_public
 
     networks:
       internal:
         ipv4_address: 172.22.0.7
+      bridge:
 
     restart: always
-      
+
+  ldap:
+    image: osixia/openldap:1.5.0
+    environment:
+      LDAP_ORGANISATION: "Lythar"
+      LDAP_DOMAIN: "lythar.org"
+      LDAP_ADMIN_PASSWORD: "admin_pass"
+      LDAP_ADMIN_DN: "cn=admin,dc=lythar,dc=org"
+    ports:
+      - "389:389"
+      - "636:636"
+    networks:
+      internal:
+        ipv4_address: 172.22.0.8
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: "lythar"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "12345"
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    secrets:
+      - db_password
+    ports:
+      - "5432"
+    networks:
+      internal:
+        ipv4_address: 172.22.0.9
+
   proxy:
     image: nginx:alpine
     ports:
@@ -75,4 +115,3 @@ services:
     networks:
       - internal
       - bridge
-      

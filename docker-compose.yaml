@@ -17,6 +17,7 @@ networks:
 services:
   api:
     image: api
+    container_name: api
 
     build:
       context: ${BACKEND_PATH}
@@ -74,6 +75,8 @@ services:
 
   ldap:
     image: osixia/openldap:1.5.0
+    container_name: ldap
+
     environment:
       LDAP_ORGANISATION: "Lythar"
       LDAP_DOMAIN: "lythar.org"
@@ -89,14 +92,17 @@ services:
 
   phpldapadmin:
     image: leenooks/phpldapadmin:2.0.0-dev
+    container_name: phpldapadmin
+
     environment:
       APP_KEY: base64:IBwYK8Fwp7gQrqqfkGEymcFp9c0yjr/wxvdrHIiswHc=
       LDAP_HOST: ldap
       APP_TIMEZONE: "Europe/Warsaw"
       LDAP_USERNAME: "cn=admin,dc=lythar,dc=org"
       LDAP_PASSWORD: "admin_pass"
+
     ports:
-      - "80:80"
+      - "8081:80"
 
     depends_on:
       - ldap
@@ -104,26 +110,32 @@ services:
     networks:
       internal:
         ipv4_address: 172.22.0.10
-      bridge:
 
   db:
     image: postgres:16
+    container_name: database
+
     environment:
       POSTGRES_DB: "lythar"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "12345"
+
     volumes:
       - ./postgres:/var/lib/postgresql/data
+
     secrets:
       - db_password
+
     ports:
       - "5432"
+
     networks:
       internal:
         ipv4_address: 172.22.0.9
 
   proxy:
     image: nginx:alpine
+    container_name: proxy
     ports:
       - "8080:8080"
     volumes:

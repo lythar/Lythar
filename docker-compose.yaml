@@ -79,12 +79,32 @@ services:
       LDAP_DOMAIN: "lythar.org"
       LDAP_ADMIN_PASSWORD: "admin_pass"
       LDAP_ADMIN_DN: "cn=admin,dc=lythar,dc=org"
+      BASE_DN: "cn=admin,dc=lythar,dc=org"
     ports:
       - "389:389"
       - "636:636"
     networks:
       internal:
         ipv4_address: 172.22.0.8
+
+  phpldapadmin:
+    image: leenooks/phpldapadmin:2.0.0-dev
+    environment:
+      APP_KEY: base64:IBwYK8Fwp7gQrqqfkGEymcFp9c0yjr/wxvdrHIiswHc=
+      LDAP_HOST: ldap
+      APP_TIMEZONE: "Europe/Warsaw"
+      LDAP_USERNAME: "cn=admin,dc=lythar,dc=org"
+      LDAP_PASSWORD: "admin_pass"
+    ports:
+      - "80:80"
+
+    depends_on:
+      - ldap
+
+    networks:
+      internal:
+        ipv4_address: 172.22.0.10
+      bridge:
 
   db:
     image: postgres:16

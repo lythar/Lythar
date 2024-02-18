@@ -29,6 +29,9 @@ services:
       ASPNETCORE_HTTP_PORTS: 5505
       Ldap__Host: 172.22.0.8
 
+    ports:
+      - "5505:5505"
+
     secrets:
       - db_password
       - jwt_private

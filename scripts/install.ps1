@@ -68,3 +68,6 @@ Copy-Item -Path "$currentWorkingDirectory\Lythar\scripts\example_secrets" -Desti
 
 Write-Host "Usuwanie niepotrzebnych plików..." -ForegroundColor Green
 Remove-Item -Path "$currentWorkingDirectory\Lythar\scripts" -Recurse -Force
+
+Write-Host "Zainstalowano Lythar. Następne kroki:" -ForegroundColor Green
+Write-Host "- Skonfiguruj pliki konfiguracyjne w folderze secrets." -ForegroundColor Green

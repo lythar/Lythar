@@ -51,25 +51,32 @@ function CloneRepostiory {
   if (-not (Test-Path -Path $path)) {
     Write-Host "Klonowanie repozytorium $repo do $path..." -ForegroundColor Green
     git clone $repo $path
+    Remove-Item -Path "$path\.git" -Recurse -Force
   }
   else {
     Write-Host "Repozytorium $repo już istnieje w $path." -ForegroundColor Yellow
   }
 }
 
+
 $currentWorkingDirectory = Get-Location -PSProvider FileSystem
+
+New-Item -Path "$currentWorkingDirectory\Lythar" -ItemType Directory
+
+$newWorkingDirectory = "$currentWorkingDirectory\lythar-chat"
 
 Write-Host "Klonowanie repozytoriów Lythar..." -ForegroundColor Green
 
-CloneRepostiory "https://github.com/lythar/Lythar" "$currentWorkingDirectory\Lythar"
-CloneRepostiory "https://github.com/lythar/lythar-frontend" "$currentWorkingDirectory\lythar-frontend"
-CloneRepostiory "https://github.com/lythar/lythar-backend" "$currentWorkingDirectory\lythar-backend"
+CloneRepostiory "https://github.com/lythar/Lythar" "$newWorkingDirectory\Lythar"
+CloneRepostiory "https://github.com/lythar/lythar-frontend" "$newWorkingDirectory\lythar-frontend"
+CloneRepostiory "https://github.com/lythar/lythar-backend" "$newWorkingDirectory\lythar-backend"
 
 Write-Host "Kopiowanie przykładowych plików konfiguracyjnych..." -ForegroundColor Green
-Copy-Item -Path "$currentWorkingDirectory\Lythar\scripts\example_secrets" -Destination "$currentWorkingDirectory\Lythar\secrets" -Recurse -Force
+Copy-Item -Path "$newWorkingDirectory\Lythar\scripts\example_secrets" -Destination "$newWorkingDirectory\Lythar\secrets" -Recurse -Force
+Copy-Item -Path "$newWorkingDirectory\Lythar\.env.example" -Destination "$newWorkingDirectory\Lythar\.env" -Force
 
 Write-Host "Usuwanie niepotrzebnych plików..." -ForegroundColor Green
-Remove-Item -Path "$currentWorkingDirectory\Lythar\scripts" -Recurse -Force
+Remove-Item -Path "$newWorkingDirectory\Lythar\scripts" -Recurse -Force
 
 Write-Host "Zainstalowano Lythar. Następne kroki:" -ForegroundColor Green
 Write-Host "- Skonfiguruj pliki konfiguracyjne w folderze secrets." -ForegroundColor Green

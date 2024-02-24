@@ -1,6 +1,8 @@
 # LYTHAR INSTALLATION SCRIPT
 # This script is used to install Lythar on a new machine. It will install all the necessary software and tools to get started with Lythar.
 
+Write-Host "Lythar Installation Script" -ForegroundColor Green
+
 $dockerInstalled = Get-Command docker -ErrorAction SilentlyContinue
 
 if ($null -eq $dockerInstalled) {

@@ -80,6 +80,7 @@ services:
   ldap:
     image: osixia/openldap:1.5.0
     container_name: ldap
+    restart: always
 
     environment:
       LDAP_ORGANISATION: "Lythar"
@@ -94,36 +95,17 @@ services:
       internal:
         ipv4_address: 172.22.0.8
 
-  phpldapadmin:
-    image: leenooks/phpldapadmin:2.0.0-dev
-    container_name: phpldapadmin
-
-    environment:
-      APP_KEY: base64:IBwYK8Fwp7gQrqqfkGEymcFp9c0yjr/wxvdrHIiswHc=
-      LDAP_HOST: ldap
-      APP_TIMEZONE: "Europe/Warsaw"
-      LDAP_USERNAME: "cn=admin,dc=lythar,dc=org"
-      LDAP_PASSWORD: "admin_pass"
-
-    ports:
-      - "8081:80"
-
-    depends_on:
-      - ldap
-
-    networks:
-      internal:
-        ipv4_address: 172.22.0.10
 
   db:
     image: postgres:16
     container_name: database
+    restart: always
 
     healthcheck:
-      test: /usr/bin/pg_isready -U postgres -d lythar -h
+      test: [ "CMD", "pg_isready", "-q", "-d", "lythar", "-U", "postgres" ]
       interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 120
 
     environment:
       POSTGRES_DB: "lythar"
@@ -146,6 +128,7 @@ services:
   proxy:
     image: nginx:alpine
     container_name: proxy
+    restart: always
     ports:
       - "8080:8080"
     volumes:

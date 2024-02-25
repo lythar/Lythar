@@ -45,8 +45,9 @@ services:
     restart: always
 
     depends_on:
-      - db
-      - ldap
+      postgres-db:
+        condition: service_healthy
+      ldap:
 
     networks:
       internal:
@@ -122,6 +123,12 @@ services:
   db:
     image: postgres:16
     container_name: database
+    
+    healthcheck:
+      test: /usr/bin/pg_isready
+      interval: 5s
+      timeout: 10s
+      retries: 120
 
     environment:
       POSTGRES_DB: "lythar"

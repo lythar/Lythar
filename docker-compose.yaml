@@ -26,6 +26,7 @@ services:
     environment:
       Jwt__PrivateKey: /run/secrets/jwt_private
       Jwt__PublicKey: /run/secrets/jwt_public
+      DatabaseContext__AutoRunMigrations: true
       ASPNETCORE_HTTP_PORTS: 5505
       Ldap__Host: 172.22.0.8
 

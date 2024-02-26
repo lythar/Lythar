@@ -1,6 +1,4 @@
 secrets:
-  db_password:
-    file: ./secrets/db_password.txt
   jwt_private:
     file: ./secrets/jwt_private.pem
   jwt_public:
@@ -27,18 +25,19 @@ services:
       Jwt__PrivateKey: /run/secrets/jwt_private
       Jwt__PublicKey: /run/secrets/jwt_public
       DatabaseContext__AutoRunMigrations: true
+      ConnectionStrings__DatabaseContext: Host=172.22.0.9;Database=lythar;Username=postgres;Password=${DB_PASSWORD}
       LocalFileService__RootPath: /var/lib/lythar/uploads
       ASPNETCORE_HTTP_PORTS: 5505
       Ldap__Host: 172.22.0.8
-
+      Ldap__Port: 389
+      Ldap__SearchDn: ${LDAP_DN}
+      Ldap__AdminDn: ${LDAP_ADMIN_DN}
+      Ldap__AdminPassword: ${LDAP_ADMIN_PASSWORD}
+      
     volumes:
       - ./uploads:/var/lib/lythar/uploads
 
-    ports:
-      - "5505:5505"
-
     secrets:
-      - db_password
       - jwt_private
       - jwt_public
 
@@ -84,17 +83,15 @@ services:
 
     environment:
       LDAP_ORGANISATION: "Lythar"
-      LDAP_DOMAIN: "lythar.org"
-      LDAP_ADMIN_PASSWORD: "admin_pass"
-      LDAP_ADMIN_DN: "cn=admin,dc=lythar,dc=org"
-      BASE_DN: "cn=admin,dc=lythar,dc=org"
+      LDAP_DOMAIN: ${LDAP_DOMAIN}
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD}
+      LDAP_ADMIN_DN: ${LDAP_ADMIN_DN}
+      BASE_DN: ${LDAP_ADMIN_DN}
     ports:
       - "389:389"
-      - "636:636"
     networks:
       internal:
         ipv4_address: 172.22.0.8
-
 
   db:
     image: postgres:16
@@ -110,13 +107,10 @@ services:
     environment:
       POSTGRES_DB: "lythar"
       POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "12345"
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
 
     volumes:
       - ./postgres:/var/lib/postgresql/data
-
-    secrets:
-      - db_password
 
     ports:
       - "5432"
